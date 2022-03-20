@@ -5,7 +5,7 @@ help:
 .DEFAULT_GOAL := help
 
 demo: stop ## start demo environment
-	@docker-compose up -d
+	@docker-compose -f ./dev/docker-compose.yaml up -d
 
 stop: ## stop demo environment
-	@docker-compose down
+	@docker-compose -f ./dev/docker-compose.yaml down

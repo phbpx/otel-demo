@@ -1,0 +1,10 @@
+#! /bin/sh
+
+TS=$(date +"%s")
+MIGRATION_DIR="$(pwd)/postgres/migrations"
+MIGRATION_UP="${MIGRATION_DIR}/${TS}_$1.up.sql"
+MIGRATION_DOWN="${MIGRATION_DIR}/${TS}_$1.down.sql"
+
+[ ! -d $MIGRATION_DIR ] && mkdir -p $MIGRATION_DIR
+
+touch {$MIGRATION_UP,$MIGRATION_DOWN}
