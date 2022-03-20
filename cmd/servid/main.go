@@ -104,7 +104,7 @@ func run(serverName string, log *zap.SugaredLogger) error {
 	// =========================================================================
 	// Update database schema
 
-	log.Infow("startup", "status", "updating database schema", "database", cfg.DB.Name)
+	log.Infow("startup", "status", "updating database schema", "database", cfg.DB.Name, "host", cfg.DB.Host)
 
 	if err := postgres.Migrate(context.Background(), db); err != nil {
 		return fmt.Errorf("updating database schema: %w", err)

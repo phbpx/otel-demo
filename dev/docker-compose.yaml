@@ -1,6 +1,19 @@
 version: "3.7"
 
 services:
+  oteldemo:
+    build:
+      context: ../
+    environment:
+      LEAD_DB_HOST: db:5432
+      LEAD_JAEGER_REPORTER_URI: http://jaeger:14268/api/traces
+      LEAD_JAEGER_SERVICE_NAME: leads-api
+    depends_on:
+      - db
+      - jaeger
+    networks:
+      - otel-demo
+
   db:
     image: postgres:13-alpine
     restart: always

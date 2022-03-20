@@ -108,6 +108,10 @@ func StatusCheck(ctx context.Context, db *sql.DB) error {
 // Migrate attempts to bring the schema for db up to date with the migrations
 // defined in this package.
 func Migrate(ctx context.Context, db *sql.DB) error {
+	if err := StatusCheck(ctx, db); err != nil {
+		return fmt.Errorf("db status check: %w", err)
+	}
+
 	source, err := httpfs.New(http.FS(migrations), "migrations")
 	if err != nil {
 		return fmt.Errorf("invalid source instance: %w", err)
