@@ -15,6 +15,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/phbpx/otel-demo/handler"
 	"github.com/phbpx/otel-demo/postgres"
+	"github.com/riandyrn/otelchi"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -137,7 +138,7 @@ func run(serverName string, log *zap.SugaredLogger) error {
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Recoverer)
-	//r.Use(otelchi.Middleware(serverName, otelchi.WithChiRoutes(r)))
+	r.Use(otelchi.Middleware(serverName, otelchi.WithChiRoutes(r)))
 
 	r.Route("/leads", func(r chi.Router) {
 		r.Post("/", leadHandler.Create)
@@ -227,7 +228,7 @@ func startTracing(serviceName, reporterURL string) (*tracesdk.TracerProvider, er
 	}
 
 	tp := tracesdk.NewTracerProvider(
-		tracesdk.WithSampler(tracesdk.TraceIDRatioBased(1)),
+		tracesdk.WithSampler(tracesdk.AlwaysSample()),
 		// Always be sure to batch in production.
 		tracesdk.WithBatcher(exp,
 			tracesdk.WithMaxExportBatchSize(tracesdk.DefaultMaxExportBatchSize),
