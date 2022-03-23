@@ -8,6 +8,8 @@ services:
       LEAD_DB_HOST: db:5432
       LEAD_JAEGER_REPORTER_URI: http://jaeger:14268/api/traces
       LEAD_JAEGER_SERVICE_NAME: leads-api
+    ports:
+      - 3000:3000
     depends_on:
       - db
       - jaeger
