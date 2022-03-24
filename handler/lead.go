@@ -8,15 +8,15 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	oteldemo "github.com/phbpx/otel-demo"
-	"github.com/uptrace/opentelemetry-go-extra/otelzap"
+	"go.uber.org/zap"
 )
 
 type LeadHandler struct {
 	service oteldemo.LeadService
-	log     *otelzap.SugaredLogger
+	log     *zap.SugaredLogger
 }
 
-func NewLeadHanlder(service oteldemo.LeadService, log *otelzap.SugaredLogger) *LeadHandler {
+func NewLeadHanlder(service oteldemo.LeadService, log *zap.SugaredLogger) *LeadHandler {
 	return &LeadHandler{
 		service: service,
 		log:     log,
@@ -29,7 +29,7 @@ func (lh LeadHandler) Create(rw http.ResponseWriter, r *http.Request) {
 	var lead oteldemo.Lead
 
 	if err := decode(r, &lead); err != nil {
-		lh.log.Ctx(ctx).Errorw("GetByID", "error", err.Error())
+		lh.log.Errorw("GetByID", "error", err.Error())
 		respondErr(ctx, rw, http.StatusBadRequest, err)
 		return
 	}
@@ -41,7 +41,7 @@ func (lh LeadHandler) Create(rw http.ResponseWriter, r *http.Request) {
 	lead.ModifiedAt = now
 
 	if err := lh.service.Create(r.Context(), lead); err != nil {
-		lh.log.Ctx(r.Context()).Errorw("Create", "error", err.Error())
+		lh.log.Errorw("Create", "error", err.Error())
 		switch err {
 		case oteldemo.ErrDuplicatedLead:
 			respondErr(ctx, rw, http.StatusConflict, err)
@@ -59,14 +59,14 @@ func (lh LeadHandler) GetByID(rw http.ResponseWriter, r *http.Request) {
 
 	id, err := uuid.Parse(chi.URLParam(r, "id"))
 	if err != nil {
-		lh.log.Ctx(ctx).Errorw("GetByID", "error", err.Error())
+		lh.log.Errorw("GetByID", "error", err.Error())
 		respondErr(ctx, rw, http.StatusBadRequest, errors.New("ID is not in its proper form"))
 		return
 	}
 
-	lead, err := lh.service.GetByID(r.Context(), id.String())
+	lead, err := lh.service.GetByID(ctx, id.String())
 	if err != nil {
-		lh.log.Ctx(r.Context()).Errorw("GetByID", "error", err.Error())
+		lh.log.Errorw("GetByID", "error", err.Error())
 		switch err {
 		case oteldemo.ErrLeadNotFound:
 			respondErr(ctx, rw, http.StatusNotFound, err)

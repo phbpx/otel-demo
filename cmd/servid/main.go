@@ -16,7 +16,6 @@ import (
 	"github.com/phbpx/otel-demo/handler"
 	"github.com/phbpx/otel-demo/postgres"
 	"github.com/riandyrn/otelchi"
-	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/jaeger"
@@ -130,13 +129,11 @@ func run(serverName string, log *zap.SugaredLogger) error {
 
 	log.Infow("startup", "status", "initializing router")
 
-	otelLog := otelzap.New(log.Desugar(), otelzap.WithStackTrace(true)).Sugar()
 	leadService := postgres.NewLeadService(db)
-	leadHandler := handler.NewLeadHanlder(leadService, otelLog)
+	leadHandler := handler.NewLeadHanlder(leadService, log)
 
 	r := chi.NewRouter()
 
-	r.Use(middleware.RequestID)
 	r.Use(middleware.Recoverer)
 	r.Use(otelchi.Middleware(serverName, otelchi.WithChiRoutes(r)))
 
